@@ -1,0 +1,23 @@
+* {
+    font-family: 'Courier New', Courier, monospace;
+    border: dashed 0x black;
+    text-align: center;
+}
+
+body {
+    
+    margin: 10px;
+    display: flex;
+    box-sizing:border-box;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color:rgb(179, 122, 0);
+}
+
+button {
+    width: 150px;
+    height: 48px;
+    border-radius: 8px;
+    background-color:rgb(255, 115, 0);
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}

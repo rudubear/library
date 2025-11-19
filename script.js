@@ -15,39 +15,99 @@ function Book(title, author, pages, read){
     this.id = crypto.randomUUID();
 
     this.info = function(){
-        output = this.title + " by " + this.author + ", " + this.pages + " pages";
+        output = this.title + " Written by " + this.author + " " + this.pages + " pages";
         if (this.read == false)
-            output += ", not read yet";
+            output += "<br> not read yet <br> ";
         else    
-            output += ", read this book";
+            output += "<br>  read this book <br>  ";
         return output;
     }
 
+    this.getReadStatus = this.read;
+    this.getID = this.id;
+    this.getTitle = this.title;
+
+}
+
+Book.prototype.updateReadStatus = function () {
+    console.log(this.read);
+    if (this.read == true ) {
+        console.log("status updated from read to not read for " + this.title);
+        this.read = false;
+    }
+    else if (this.read == false) {
+        console.log("status updated from not read to read for " + this.title);
+        this.read = true;
+    }
+}
+
+function removeBookFromLibrary(book, library){
+    console.log("removing " + book.title + " from library");
+    var targetId = book.getID;
+    for (let index = 0; index < library.length; index++) {
+        console.log("comparing "+ library[index].getTitle + " with " + book.getTitle);
+        if (library[index].getID == targetId) {
+            console.log("removing " + library[index].getTitle);
+            library.splice(index,1);
+            break;
+        }
+    }
+    console.log(library);
+    //return library;
 }
 
 function addBookToLibrary(book, library) {
     console.log("adding " + book.title + " to library")
     library.push(book);
+    console.log(library);
+}
+
+function updateBookCell(book){
+    const targetCell = document.getElementById(book.getID);
+    targetCell.innerHTML = book.info();
 }
 
 function printLibrary(library) {
     var displayLibrary = document.getElementById("myLibraryContents");
+    var displayLibraryBody = displayLibrary.getElementsByTagName('tbody')[0];
+    console.log("printing library body \n" + displayLibraryBody);
+    
+    if (displayLibraryBody != null) {
+        while (displayLibraryBody.rows.length > 0) {
+            displayLibraryBody.deleteRow(0);
+        }
+    }
+
     for (const book of library) {
 
         var row = displayLibrary.insertRow(0);
-        var cell = row.insertCell(0);
-        cell.innerHTML = book.info();
-        //var row = document.createElement("tr");
-        //var bookCell = document.createElement("td");
+        var cellText = row.insertCell(0);
+        var cellBtnUpdateReadStatus = row.insertCell(1);
+        var cellBtnRemoveBook = row.insertCell(2);
+        cellText.innerHTML = book.info();
+        cellText.setAttribute('id',book.getID);
 
-        //bookCell.innerHTML = "testy" //book.info();
-        console.log(displayLibrary);
-        //displayLibrary.insertRow(row);
-        //row.appendChild(bookCell);
-        
-        //document.getElementById("myLibraryContents").appendChild(row);
-        // displayLibrary.appendChild(row);
-        //console.log(book.info());
+        const btnUpdateReadStatus = document.createElement("BUTTON");
+        btnUpdateReadStatus.textContent = 'Update Read Status';
+        btnUpdateReadStatus.id = 'myBtnUpdateReadStatus';
+        btnUpdateReadStatus.addEventListener('click', function () {
+            book.updateReadStatus();
+            updateBookCell(book);
+            }
+        );
+
+        const btnRemoveBook = document.createElement("BUTTON");
+        btnRemoveBook.textContent = 'Remove from Library';
+        btnRemoveBook.id = 'myBtnRemoveFromLibrary';
+        btnRemoveBook.addEventListener('click', function () {
+            removeBookFromLibrary(book, library);
+            printLibrary(library);
+            //updateBookCell(book);
+            }
+        );
+
+        cellBtnUpdateReadStatus.appendChild(btnUpdateReadStatus);
+        cellBtnRemoveBook.appendChild(btnRemoveBook);
     }
     displayLibrary.setAttribute('border','1');
 }
@@ -78,20 +138,46 @@ function createTextInTableRow(tableID, value, rowPosition, rowID, cellPosition)
 
 
 function initializeLibrary() {
-    var displayEnterBookInfo = document.getElementById("enterBookInfo");
-    displayEnterBookInfo.setAttribute('border','1');
+    //var displayEnterBookInfo = document.getElementById("enterBookInfo");
+    //displayEnterBookInfo.setAttribute('border','1');
     //displayEnterBookInfo = document.createElement("inputBook");
-    
+    const myForm = document.createElement('form');
+    myForm.setAttribute('id','myForm');
+    myForm.setAttribute('action','/submit-data');
+    myForm.setAttribute('method','POST');
+
     const myModal = document.createElement('dialog');
-    const myModalTable = document.createElement('table')
+    myModal.setAttribute('id','myDialog');
+    const myModalTable = document.createElement('table');
+    const myModalTableBody = document.createElement('tbody');
+    const myModalTableP = document.createElement('p');
+    myModalTableP.textContent = "Time to add a book to the library!";
+    
     myModalTable.setAttribute('border','1');
 
+    myModal.appendChild(myForm);
+    myForm.appendChild(myModalTableP);
+    myForm.appendChild(myModalTable);
+    myModalTable.appendChild(myModalTableBody);
+
+
+    //myModal.innerHTML=
+    //    '<p>Time to add a book!</p>' +
+    //    '<form name ="myForm" onsubmit="return hue()" method="post">' +
+    //    '<table id="tblAddBook">heh</table></form>';
     
-    myModal.innerHTML=
-        '<p>Time to add a book!</p>' +
-        '<form name ="myForm" onsubmit="return hue()" method="post">' +
-        '<table id="tblAddBook">heh</table></form>';
-    const myBody = document.getElementById("myBody");;
+    const btnEnterBookInfo = document.createElement("BUTTON");
+    btnEnterBookInfo.textContent = 'Enter Book Information';
+    btnEnterBookInfo.id = 'myBtnEnterBookInformation';
+    btnEnterBookInfo.addEventListener('click', function () {
+        myModal.show();
+    }
+    );
+
+
+
+    const myBody = document.getElementById("myBody");
+    myBody.appendChild(btnEnterBookInfo);
     myBody.appendChild(myModal);
 
     const cell0 = document.createElement('td');
@@ -99,11 +185,11 @@ function initializeLibrary() {
     const cell2 = document.createElement('td');
     const cell3 = document.createElement('td');
     
-    createTextInTableRow(displayEnterBookInfo, "Book", 0, 'rowBook', 0);
-    createTextInTableRow(displayEnterBookInfo, "Author", 1, 'rowAuthor', 0);
-    createTextInTableRow(displayEnterBookInfo, "Pages", 2, 'rowPages',  0);
-    createTextInTableRow(displayEnterBookInfo, "Read", 3, 'rowIsRead', 0);
-    createTextInTableRow(displayEnterBookInfo, "Commands", 4, 'rowCommands', 0);
+    createTextInTableRow(myModalTable, "Book", 0, 'rowBook', 0);
+    createTextInTableRow(myModalTable, "Author", 1, 'rowAuthor', 0);
+    createTextInTableRow(myModalTable, "Pages", 2, 'rowPages',  0);
+    createTextInTableRow(myModalTable, "Read", 3, 'rowIsRead', 0);
+    createTextInTableRow(myModalTable, "Commands", 4, 'rowCommands', 0);
 
     const inputBookField = createTextField("INPUT", 'newBookID', 'text', 'a book name');
     const inputAuthorField = createTextField("INPUT", 'newAuthorID', 'text', 'author name');
@@ -129,18 +215,26 @@ function initializeLibrary() {
     btnAddBook.textContent = 'Add Book';
     btnAddBook.id = 'myBtnAddBook';
     btnAddBook.addEventListener('click', function () {
-        myModal.show();
+        var newBookValue = document.getElementById('newBookID').value;
+        var newAuthorValue = document.getElementById('newAuthorID').value;
+        var newPagesID = document.getElementById('newPagesID').value;
+        var newIsReadID = document.getElementById('newIsReadID').checked;
+        const myBook = new Book (newBookValue, newAuthorValue, newPagesID, newIsReadID);
+        addBookToLibrary(myBook, myLibrary);
+        printLibrary(myLibrary);
+        myModal.close();
+        event.preventDefault();
+       // Event.preventDefault();
     }
     );
 
     const cell4 = document.createElement('td');
     cell4.appendChild(btnAddBook);
-
     var btnrow = document.getElementById('rowCommands');
     btnrow.setAttribute('id','rowAddBook');
     var btncell = btnrow.insertCell();
     btncell.appendChild(btnAddBook);
-
+    
     
     //myModal.show();
 
@@ -150,7 +244,7 @@ initializeLibrary();
 const book1 = new Book("Dune","Frank Herbet", 500, false);
 const book2 = new Book("Before They are Hanged","Joe Abercombie", 300, true);
 const book3 = new Book("A Song of Fire and Ice", "George R. R. Martin", 600, false);
-const book4 = new Book("Lord of The Rings", "J. R.R. Tolken");
+const book4 = new Book("Lord of The Rings", "J. R.R. Tolken", 2000, false);
 
 addBookToLibrary(book1, myLibrary);
 addBookToLibrary(book2, myLibrary);
