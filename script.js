@@ -115,9 +115,7 @@ class Library {
     }
 
     initializeLibrary() {
-        //var displayEnterBookInfo = document.getElementById("enterBookInfo");
-        //displayEnterBookInfo.setAttribute('border','1');
-        //displayEnterBookInfo = document.createElement("inputBook");
+        
         const myForm = document.createElement('form');
         myForm.setAttribute('id','myForm');
         myForm.setAttribute('action','/submit-data');
@@ -125,29 +123,23 @@ class Library {
     
         const myModal = document.createElement('dialog');
         myModal.setAttribute('id','myDialog');
-        const myModalTable = document.createElement('table');
-        const myModalTableBody = document.createElement('tbody');
-        const myModalTableP = document.createElement('p');
-        myModalTableP.textContent = "Time to add a book to the library!";
+        const myFormTable = document.createElement('table');
+        const myFormTableBody = document.createElement('tbody');
+        const myFormTableP = document.createElement('p');
+        myFormTableP.textContent = "Time to add a book to the library!";
         
-        myModalTable.setAttribute('border','1');
+        myFormTable.setAttribute('border','1');
     
         myModal.appendChild(myForm);
-        myForm.appendChild(myModalTableP);
-        myForm.appendChild(myModalTable);
-        myModalTable.appendChild(myModalTableBody);
-    
-    
-        //myModal.innerHTML=
-        //    '<p>Time to add a book!</p>' +
-        //    '<form name ="myForm" onsubmit="return hue()" method="post">' +
-        //    '<table id="tblAddBook">heh</table></form>';
+        myForm.appendChild(myFormTableP);
+        myForm.appendChild(myFormTable);
+        myFormTable.appendChild(myFormTableBody);
         
         const btnEnterBookInfo = document.createElement("BUTTON");
         btnEnterBookInfo.textContent = 'Enter Book Information';
         btnEnterBookInfo.id = 'myBtnEnterBookInformation';
         btnEnterBookInfo.addEventListener('click', function () {
-            myModal.show();
+            myModal.showModal();
         }
         );
     
@@ -162,16 +154,28 @@ class Library {
         const cell2 = document.createElement('td');
         const cell3 = document.createElement('td');
         
-        this.createTextInTableRow(myModalTable, "Book", 0, 'rowBook', 0);
-        this.createTextInTableRow(myModalTable, "Author", 1, 'rowAuthor', 0);
-        this.createTextInTableRow(myModalTable, "Pages", 2, 'rowPages',  0);
-        this.createTextInTableRow(myModalTable, "Read", 3, 'rowIsRead', 0);
-        this.createTextInTableRow(myModalTable, "Commands", 4, 'rowCommands', 0);
+        this.createTextInTableRow(myFormTable, "Book", 0, 'rowBook', 0);
+        this.createTextInTableRow(myFormTable, "Author", 1, 'rowAuthor', 0);
+        this.createTextInTableRow(myFormTable, "Pages", 2, 'rowPages',  0);
+        this.createTextInTableRow(myFormTable, "Read", 3, 'rowIsRead', 0);
+        this.createTextInTableRow(myFormTable, "Commands", 4, 'rowCommands', 0);
     
         const inputBookField = this.createTextField("INPUT", 'newBookID', 'text', 'a book name');
         const inputAuthorField = this.createTextField("INPUT", 'newAuthorID', 'text', 'author name');
         const inputPagesField = this.createTextField("INPUT", 'newPagesID', 'number', '100');
         const inputIsReadField = this.createTextField("INPUT", 'newIsReadID', 'checkbox', true);
+
+        inputAuthorField.addEventListener('input', (event) => {
+            if (inputAuthorField.value.length < 3){
+                inputAuthorField.setCustomValidity("author name must be at least 3 characters");
+                console.log("author name must be at least 3 characters");
+                inputAuthorField.reportValidity();
+            } else {
+                inputAuthorField.setCustomValidity(""); //Valid
+                console.log("we gucci");
+            }
+        })
+
     
         const myRowBook = document.getElementById('rowBook');
         const myRowAuthor = document.getElementById('rowAuthor');
@@ -189,18 +193,24 @@ class Library {
         myIsRead.appendChild(cell3);
     
         const btnAddBook = document.createElement("BUTTON");
+        btnAddBook.type="SUBMIT";
         btnAddBook.textContent = 'Add Book';
         btnAddBook.id = 'myBtnAddBook';
-        btnAddBook.addEventListener('click', () => {
-            var newBookValue = document.getElementById('newBookID').value;
-            var newAuthorValue = document.getElementById('newAuthorID').value;
-            var newPagesID = document.getElementById('newPagesID').value;
-            var newIsReadID = document.getElementById('newIsReadID').checked;
-            const myBook = new Book (newBookValue, newAuthorValue, newPagesID, newIsReadID);
-            this.addBookToLibrary(myBook);
-            this.printLibrary();
-            myModal.close();
-            event.preventDefault();
+        btnAddBook.addEventListener('click', (e) => {
+            e.preventDefault();
+            if(inputAuthorField.validity.valid){
+                var newBookValue = document.getElementById('newBookID').value;
+                var newAuthorValue = document.getElementById('newAuthorID').value;
+                var newPagesID = document.getElementById('newPagesID').value;
+                var newIsReadID = document.getElementById('newIsReadID').checked;
+                const myBook = new Book (newBookValue, newAuthorValue, newPagesID, newIsReadID);
+                this.addBookToLibrary(myBook);
+                this.printLibrary();
+                myModal.close();
+            }
+
+            
+            
            // Event.preventDefault();
         }
 
@@ -227,7 +237,7 @@ class Library {
         
         
         //myModal.show();
-    
+        
     }
 }
 
